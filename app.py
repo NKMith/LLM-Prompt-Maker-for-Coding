@@ -39,9 +39,6 @@ class PromptBuilderApp:
         # Initially hide the button
         self.dir_button.pack_forget()
 
-
-
-
         # Generate button
         self.generate_button = tk.Button(root, text="Generate Final Prompt", command=self.generate_prompt)
         self.generate_button.pack(pady=5)
@@ -56,6 +53,9 @@ class PromptBuilderApp:
         out_button_frame.pack(pady=5)
         tk.Button(out_button_frame, text="Copy to Clipboard", command=self.copy_to_clipboard).pack(side="left", padx=5)
         tk.Button(out_button_frame, text="Save to File", command=self.save_to_file).pack(side="left", padx=5)
+
+        self.size_label = tk.Label(root, text="Prompt size: 0 characters")
+        self.size_label.pack()
 
     def add_file(self):
         files = filedialog.askopenfilenames(title="Select Code Files")
@@ -157,6 +157,17 @@ class PromptBuilderApp:
                 final.append(f"\n--- Below is my {filepath} ---\n[Error reading file: {e}]")
 
         combined = "\n".join(final)
+
+        char_count = len(combined)
+        warning_threshold = 400_000 
+
+        self.size_label.config(text=f"Prompt size: {char_count:,} characters")
+        if char_count > warning_threshold:
+            messagebox.showwarning(
+                "Prompt Size Warning",
+                f"Your final prompt is approximately {char_count:,} characters long.\n\n"
+                "This may exceed the input limit for some language models.\nConsider trimming your input."
+            )
         self.output_box.delete("1.0", tk.END)
         self.output_box.insert(tk.END, combined)
 
