@@ -175,7 +175,6 @@ class PromptBuilderApp:
         final_prompt = self.output_box.get("1.0", tk.END)
         self.root.clipboard_clear()
         self.root.clipboard_append(final_prompt)
-        #messagebox.showinfo("Copied", "Final prompt copied to clipboard.")
 
     def save_to_file(self):
         save_path = filedialog.asksaveasfilename(defaultextension=".txt",
