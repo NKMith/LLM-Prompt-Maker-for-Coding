@@ -1,0 +1,3 @@
+- Bug where added directory in final prompt doesn't get deleted if you uncheck the "Add Dir" checkbox afterwards
+- Allow ignoring certain files when printing out directory (like gitignore)
+- Maybe "Add every file inside a folder" option
