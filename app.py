@@ -143,9 +143,9 @@ class PromptBuilderApp:
         user_prompt = self.prompt_input.get("1.0", tk.END).strip()
         final = [f"{user_prompt}\n"]
 
-        directory_tree = self.build_directory_tree(self.chosen_directory) if hasattr(self, 'chosen_directory') else ""
-
-        final.append(f"\n--- Below is the folder structure of {os.path.basename(self.chosen_directory)} ---\n{directory_tree}\n" if directory_tree else "")
+        if self.add_directory_var.get():
+            directory_tree = self.build_directory_tree(self.chosen_directory) if hasattr(self, 'chosen_directory') else ""
+            final.append(f"\n--- Below is the folder structure of {os.path.basename(self.chosen_directory)} ---\n{directory_tree}\n" if directory_tree else "")
 
         for filepath in self.selected_files:
             try:
