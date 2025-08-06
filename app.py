@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import filedialog, scrolledtext, messagebox
 import os
 import fnmatch
+import shutil
 
 class PromptBuilderApp:
     def __init__(self, root):
@@ -42,6 +43,11 @@ class PromptBuilderApp:
         self.ignore_input.pack(fill="both", expand=True)
         self.ignore_input.bind("<KeyRelease>", lambda e: self.update_ignore_patterns())
 
+        # Save and Load buttons below Ignore Patterns
+        button_frame2 = tk.Frame(right_frame)
+        button_frame2.pack(pady=5, anchor="center")
+        tk.Button(button_frame2, text="Save Ignore Patterns", command=self.save_ignore_patterns).pack(side="left", padx=5)
+        tk.Button(button_frame2, text="Load Ignore Patterns", command=self.load_ignore_patterns).pack(side="left", padx=5)
 
         # Directory options
         self.dir_frame = tk.Frame(root)
@@ -71,6 +77,9 @@ class PromptBuilderApp:
 
         self.size_label = tk.Label(root, text="Prompt size: 0 characters")
         self.size_label.pack()
+
+        # # Check and load ignore patterns on startup
+        self.load_ignore_patterns(startup=True)
 
     def update_ignore_patterns(self):
         """Update ignore patterns list from the text box."""
@@ -197,6 +206,60 @@ class PromptBuilderApp:
                 messagebox.showinfo("Saved", f"Prompt saved to {save_path}")
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to save file: {e}")
+
+    def save_ignore_patterns(self):
+        try:
+            with open("app_ignorefile.txt", "w", encoding="utf-8") as f:
+                for pattern in self.ignore_patterns:
+                    f.write(f"{pattern}\n")
+            #messagebox.showinfo("Saved", "Ignore patterns saved to app_ignorefile.txt")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to save ignore patterns: {e}")
+
+    def load_ignore_patterns(self, startup=False):
+        # Ask the user to select a text file to load
+        if startup:
+            if os.path.exists("app_ignorefile.txt"):
+                with open("app_ignorefile.txt", "r", encoding="utf-8") as f:
+                    new_patterns = [line.strip() for line in f.readlines() if line.strip()]
+
+                # Update the ignore patterns in the app
+                self.ignore_patterns = new_patterns
+                self.ignore_input.delete(1.0, tk.END)
+                self.ignore_input.insert(tk.END, "\n".join(self.ignore_patterns))
+            else:
+                with open("app_ignorefile.txt", "w", encoding="utf-8") as f:
+                    f.write(f".git\n")
+                    f.close()
+
+                self.ignore_patterns = ['.git']
+                self.ignore_input.delete(1.0, tk.END)
+                self.ignore_input.insert(tk.END, "\n".join(self.ignore_patterns))
+
+            return
+
+        file_path = filedialog.askopenfilename(title="Select Ignore Patterns File", filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")])
+        
+        if file_path:
+            try:
+                # Read the selected file
+                with open(file_path, "r", encoding="utf-8") as f:
+                    new_patterns = [line.strip() for line in f.readlines() if line.strip()]
+                
+                # Overwrite the app_ignorefile.txt with new patterns
+                with open("app_ignorefile.txt", "w", encoding="utf-8") as f:
+                    for pattern in new_patterns:
+                        f.write(f"{pattern}\n")
+                
+                # Update the ignore patterns in the app
+                self.ignore_patterns = new_patterns
+                self.ignore_input.delete(1.0, tk.END)
+                self.ignore_input.insert(tk.END, "\n".join(self.ignore_patterns))
+                messagebox.showinfo("Loaded", "Ignore patterns loaded and saved to app_ignorefile.txt.")
+            
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to load ignore patterns: {e}")
+
 
 if __name__ == "__main__":
     root = tk.Tk()

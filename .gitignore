@@ -3,3 +3,4 @@ build/
 dist/
 *.spec
 *.pyc
+app_ignorefile.txt
